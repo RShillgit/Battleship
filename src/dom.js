@@ -33,6 +33,30 @@ function gameboardGrids() {
     })
 }
 
+function eventHandler(e) {
+    //console.log(e.target);
+    // Ships Button
+    if (e.target.innerHTML === 'Ships') return shipsScreen();
+
+    // Vessels
+    if (e.currentTarget.className.includes('vessel')) {
+        // TODO: Somehow allow user to drag the Vessel onto the board
+        console.log(e.currentTarget.id);
+    }
+}
+
+function shipsScreen() {
+    
+    // Toggle shipsContainer's display
+    const shipsContainer = document.querySelector('.shipsContainer');
+    shipsContainer.classList.toggle('Active');
+
+    // Add event listener to each vessel
+    const vessels = document.querySelectorAll('.vessel');
+    vessels.forEach(vessel => vessel.addEventListener('mousedown', (e) => eventHandler(e)));
+}
+
 export {
     gameboardGrids,
+    eventHandler,
 }

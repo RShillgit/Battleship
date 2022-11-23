@@ -3,10 +3,14 @@ import './style.css';
 import Ship from './ship';
 import Gameboard from './gameboard';
 import Player from './player';
-import { gameboardGrids } from './dom';
+import { gameboardGrids, eventHandler } from './dom';
 
 // Create main game loop
 function game() {
+
+    // Ships button event listener
+    const shipsButton = document.getElementById('shipsBtn');
+    shipsButton.addEventListener('click', (e) => eventHandler(e));
 
     // Make User and Ai boards
     gameboardGrids();
@@ -23,6 +27,9 @@ function game() {
     // Make Eachother enemies
     user.createEnemy(ai);
     ai.createEnemy(user);
+
+    // Make ships?
+    
 
 
 
