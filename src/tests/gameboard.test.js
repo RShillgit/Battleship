@@ -1,6 +1,6 @@
 const Gameboard = require('../gameboard');
 
-let board1 = Gameboard()
+let board1 = Gameboard(1)
 board1.placeShip(4, [2, 3]); // 4 long ship from (2, 3) to (5, 3)
 board1.receiveAttack([2, 3]);
 board1.receiveAttack([4, 3]);

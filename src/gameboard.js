@@ -1,13 +1,15 @@
 const Ship = require("./ship");
 
-function Gameboard() {
+function Gameboard(player) {
     return {
+        player: player,
         ships: [],
         misses: [],
 
         // Creates new ship with the length, starting coordinates, then calculates the ending coordinates
         placeShip(length, [x, y]) {
 
+            // TODO: Dont let start or end coordinates go outside 10x10 grid (0, 0) - (9, 9)
             let newShip = Ship(length);
             newShip.startCoord = [x, y];
 
@@ -32,6 +34,8 @@ function Gameboard() {
                         this.ships[i].hit();
                         // Check if ship is sunk
                         this.ships[i].isSunk();
+                        
+                        // TODO: If ship is sunk check if all the ships are sunk?
 
                         return 'Hit';
                     }
@@ -49,6 +53,8 @@ function Gameboard() {
                         this.ships[i].hit();
                         // Check if ship is sunk
                         this.ships[i].isSunk();
+
+                        // TODO: If ship is sunk check if all the ships are sunk?
 
                         return 'Hit';
                     }
