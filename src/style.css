@@ -48,11 +48,17 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
 }
 .vessel {
     display: flex;
     justify-content: center;
     padding: 20px;
+    width: min-content;
+}
+.vessel:hover {
+    cursor: pointer;
+    background-color: lightgray;
 }
 .shipsContainer.Active {
     position: absolute;
