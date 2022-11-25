@@ -31,7 +31,5 @@ function game() {
     // Make ships?
     
 
-
-
 }
 game();

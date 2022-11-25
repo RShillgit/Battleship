@@ -39,7 +39,7 @@ function eventHandler(e) {
     if (e.target.innerHTML === 'Ships') return shipsScreen();
 
     // Vessels
-    if (e.currentTarget.className.includes('vessel')) return shipSelect(e);
+    // if (e.currentTarget.className.includes('vessel')) return shipDrag(e);
 }
 
 function shipsScreen() {
@@ -47,6 +47,12 @@ function shipsScreen() {
     // Toggle shipsContainer's display
     const shipsContainer = document.querySelector('.shipsContainer');
     shipsContainer.classList.toggle('Active');
+    
+    // Initialize coordinate where ship is placed
+    let placementCoord;
+
+    // Initialize vessel dragged
+    let draggedVessel;
 
     // Add event listener to each vessel
     const vessels = document.querySelectorAll('.vessel');
@@ -62,6 +68,8 @@ function shipsScreen() {
         // Drag start event
         vessel.addEventListener('dragstart', (e) => {
 
+            draggedVessel = e.target.id;
+
             // Add a hover event to the user board boxes
             userBoardBoxes.forEach(userBox => {
                 
@@ -70,32 +78,61 @@ function shipsScreen() {
 
                     // Push coordinate to array
                     coords.push(e.target.id);
-                    console.log(coords);
-                })
-                userBox.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.target.style.backgroundColor = 'red';
                 })
             });
         });
 
-        vessel.addEventListener('dragend', (e) => {
-            console.log(coords);
+        // When drag ends, save the final coordinate in a variable
+        vessel.addEventListener('dragend', () => {
+            placementCoord = coords.pop();
+
+            // send vessel and coordinates to ship select function
+            shipSelect(placementCoord, draggedVessel);
         })
-
     });
+    return placementCoord;
 }
 
-function shipSelect(e) {
+function shipSelect(coord, vessel) {
+    console.log(coord);
 
+    // Vessel names and lengths
+    const vesselStats = {
+        'carrier': 5,
+        'battleship': 4,
+        'cruiser': 3,
+        'submarine': 3,
+        'destroyer': 2,
+    };
 
+    // Get the length of the vessel
+    const vesselLength = vesselStats[vessel];
+
+    // Change coords to numbers
+    const splitCoords = coord.split(',');
+    const xCoord = Number(splitCoords[0]);
+    const yCoord = Number(splitCoords[1]);
+
+    // Try to place the ship
+    for (let i = 0; i < vesselLength; i++) {
+
+        const shipBoxes = document.getElementById(`${xCoord + i}, ${yCoord}`);
+
+        // Error handling if ship goes off the board
+        if (shipBoxes === null) return;
+
+        // Change shipBoxes background color
+        shipBoxes.style.backgroundColor = 'lightgray';
+
+        console.log(shipBoxes);
+    }
+    // Change color of dragged ship and disable draggability
+    const selectedVessel = document.getElementById(vessel);
+    selectedVessel.style.backgroundColor = 'green';
+    selectedVessel.draggable = false;
 }
 
-function shipDrag(e) {
 
-    
-    e.dataTransfer.setData('text', e.target.id);
-}
 
 export {
     gameboardGrids,
