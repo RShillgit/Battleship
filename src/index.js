@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _, { set } from 'lodash';
 import './style.css';
 import Ship from './ship';
 import Gameboard from './gameboard';
@@ -28,16 +28,16 @@ function game() {
     user.createEnemy(ai);
     ai.createEnemy(user);
 
-    // Check if all ships are placed
-    // Confirm button after you place ships that then actually places the ships on the gameboard
-    // On confirm click, send it to the function that places the ships AND send it to the eventhandler so it can send it to a dom altering function
-
-    // Confirm placement button event listener
+    // Confirm ship placement button event listener
     const confirmPlacementBtn = document.getElementById('confirmPlacement');
     confirmPlacementBtn.addEventListener('click', (e) => {
         eventHandler(e);
         placeShips(user);
     })
+
+    // Randomly place ai's ships
+    placeAiShips(ai);
+
 }
 game();
 
@@ -79,5 +79,132 @@ function placeShips(user) {
     user.gameboard.placeShip(3, submarineStartCoord);
     user.gameboard.placeShip(2, destroyerStartCoord);
 
-    console.log(user.gameboard.ships);
+    console.log(user);
+}
+
+function randomShipCoord(vessel) {
+
+    const name = vessel;
+
+    // Get a random Direction
+    const possibleDirections = ['horizontal', 'vertical'];
+    const randomNumbers = [0, 1];
+
+    const randomDirectionChoice = randomNumbers[Math.floor(Math.random()*randomNumbers.length)];
+
+    const direction = possibleDirections[randomDirectionChoice];
+
+    // Initialize variables
+    let xCoords;
+    let yCoords;
+    let randomX;
+    let randomY;
+    let randomCoordinate;
+
+    // Horizontal
+    if (direction === 'horizontal') {
+        if (vessel === 'carrier') xCoords = [0, 1, 2, 3, 4];
+        else if (vessel === 'battleship') xCoords = [0, 1, 2, 3, 4, 5];
+        else if (vessel === 'cruiser') xCoords = [0, 1, 2, 3, 4, 5, 6];
+        else if (vessel === 'submarine') xCoords = [0, 1, 2, 3, 4, 5, 6];
+        else if (vessel === 'destroyer') xCoords = [0, 1, 2, 3, 4, 5, 6, 7];  
+
+        yCoords = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        randomX = xCoords[Math.floor(Math.random()*xCoords.length)];
+        randomY = yCoords[Math.floor(Math.random()*yCoords.length)];
+
+        // Create random coordinate from random x and y values
+        randomCoordinate = [randomX, randomY];
+        return {randomCoordinate, direction, name};
+    }
+    // Vertical
+    else {
+        if (vessel === 'carrier') yCoords = [9, 8, 7, 6, 5];
+        else if (vessel === 'battleship') yCoords = [9, 8, 7, 6, 5, 4];
+        else if (vessel === 'cruiser') yCoords = [9, 8, 7, 6, 5, 4, 3];
+        else if (vessel === 'submarine') yCoords = [9, 8, 7, 6, 5, 4, 3];
+        else if (vessel === 'destroyer') yCoords = [9, 8, 7, 6, 5, 4, 3, 2]; 
+
+        xCoords = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+        randomX = xCoords[Math.floor(Math.random()*xCoords.length)];
+        randomY = yCoords[Math.floor(Math.random()*yCoords.length)];
+
+        // Create random coordinate from random x and y values
+        randomCoordinate = [randomX, randomY];
+        return {randomCoordinate, direction, name};
+    }
+}
+
+function placeAiShips(ai) {
+    // Array that will hold all the occupied coordinates so there cant be overlap
+    let occupiedCoords = [];
+
+    const vesselLengths = {
+        'carrier': 5,
+        'battleship': 4,
+        'cruiser': 3,
+        'submarine': 3,
+        'destroyer': 2,
+    }
+
+    const carrier = randomShipCoord('carrier');
+    const battleship = randomShipCoord('battleship');
+    const cruiser = randomShipCoord('cruiser');
+    const submarine = randomShipCoord('submarine');
+    const destroyer = randomShipCoord('destroyer');
+
+    let randomVessels = [carrier, battleship, cruiser, submarine, destroyer];
+
+    randomVessels.forEach(vessel => {
+
+        
+        for(let i = 0; i < vesselLengths[vessel.name]; i++) {
+
+            let newCoord;
+
+            if (vessel.direction === 'horizontal') {
+                newCoord = `${vessel.randomCoordinate[0] + i}, ${vessel.randomCoordinate[1]}`
+
+                //occupiedCoords.push(newCoord);
+            }
+            else if (vessel.direction === 'vertical') {
+                //vesselCoords.push([vessel.randomCoordinate[0], vessel.randomCoordinate[1] - i]);
+                newCoord = `${vessel.randomCoordinate[0]}, ${vessel.randomCoordinate[1] - i}`;
+                
+                //occupiedCoords.push(newCoord);
+            }
+            occupiedCoords.push(newCoord);
+        }
+
+        // THIS CAN BE DELETED LATER
+        for (let j = 0; j < occupiedCoords.length; j++) {
+            // AI Board Boxes
+            const aiBoardBoxes = document.getElementById('aisGameboard').querySelectorAll('.gameBoardBox');
+            aiBoardBoxes.forEach(box => {
+                if (box.id === occupiedCoords[j]){
+                    box.style.backgroundColor = 'blue';
+                }
+            })
+        }
+    })
+    // If the coordinate is already occupied, rerun the function to get new coordinates
+    if (occupiedCoords.length !== new Set(occupiedCoords).size) {
+
+        // AI BOARD BOXES THAT CAN BE DELETED LATER AS WELL
+        const aiBoardBoxes = document.getElementById('aisGameboard').querySelectorAll('.gameBoardBox');
+        aiBoardBoxes.forEach(box => box.style.backgroundColor = 'white');
+
+        return placeAiShips(ai);
+    }
+
+    // Actually create the ships
+    ai.gameboard.placeShip(5, carrier.randomCoordinate);
+    ai.gameboard.placeShip(4, battleship.randomCoordinate);
+    ai.gameboard.placeShip(3, cruiser.randomCoordinate);
+    ai.gameboard.placeShip(3, submarine.randomCoordinate);
+    ai.gameboard.placeShip(2, destroyer.randomCoordinate);
+    
+    console.log(ai.gameboard);
 }

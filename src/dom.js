@@ -1,5 +1,3 @@
-// TODO: Click event listener on each box in the AI's board which will trigger attack function
-
 function gameboardGrids() {
     const gameBoardDiv = document.querySelectorAll('.gameBoard');
 
