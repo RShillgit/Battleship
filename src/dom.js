@@ -38,8 +38,8 @@ function eventHandler(e) {
     // Ships Button
     if (e.target.innerHTML === 'Ships') return shipsScreen();
 
-    // Vessels
-    // if (e.currentTarget.className.includes('vessel')) return shipDrag(e);
+    // Confirm Placement
+    if (e.currentTarget.id === 'confirmPlacement') return postConfirmPlacement();
 }
 
 function shipsScreen() {
@@ -94,7 +94,6 @@ function shipsScreen() {
 }
 
 function shipSelect(coord, vessel) {
-    console.log(coord);
 
     // Vessel names and lengths
     const vesselStats = {
@@ -105,6 +104,8 @@ function shipSelect(coord, vessel) {
         'destroyer': 2,
     };
 
+    let shipCoords = [];
+
     // Get the length of the vessel
     const vesselLength = vesselStats[vessel];
 
@@ -113,26 +114,54 @@ function shipSelect(coord, vessel) {
     const xCoord = Number(splitCoords[0]);
     const yCoord = Number(splitCoords[1]);
 
-    // Try to place the ship
+    // Place the ship
     for (let i = 0; i < vesselLength; i++) {
 
         const shipBoxes = document.getElementById(`${xCoord + i}, ${yCoord}`);
 
+        // Error handling if the ship coordinate overlaps an already placed ship
+        if (shipBoxes.classList.contains('placed')) return;
+
         // Error handling if ship goes off the board
         if (shipBoxes === null) return;
 
-        // Change shipBoxes background color
-        shipBoxes.style.backgroundColor = 'lightgray';
-
-        console.log(shipBoxes);
+        shipCoords.push(shipBoxes);
     }
-    // Change color of dragged ship and disable draggability
+    // Change color, class, and data attribute of boxes where ship is placed
+    shipCoords.forEach(shipCoord => {
+        shipCoord.style.backgroundColor = 'gray';
+        shipCoord.setAttribute('data-vessel', vessel);
+        shipCoord.classList.toggle('placed');
+    });
+
+    // Change color and class of dragged ship and disable draggability
     const selectedVessel = document.getElementById(vessel);
     selectedVessel.style.backgroundColor = 'green';
+    selectedVessel.classList.toggle('deployed');
     selectedVessel.draggable = false;
+
+    allShipsPlaced();
 }
 
+// Checks if all ships have been placed, once they have it renders a confirm placement button
+function allShipsPlaced() {
+    // Get deployed vessels in a variable
+    const deployedVessels = document.querySelectorAll('.vessel.deployed');
 
+    if (deployedVessels.length === 5) {
+        // Get confirm button
+        const confirmPlacement = document.getElementById('confirmPlacement');
+        confirmPlacement.style.display = 'flex';
+    }
+}
+
+function postConfirmPlacement() {
+
+    // Close the ships container
+    const activeShipsContainer = document.querySelector('.shipsContainer');
+    activeShipsContainer.classList.toggle('Active');
+
+}
 
 export {
     gameboardGrids,

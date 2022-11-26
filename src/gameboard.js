@@ -9,7 +9,6 @@ function Gameboard(player) {
         // Creates new ship with the length, starting coordinates, then calculates the ending coordinates
         placeShip(length, [x, y]) {
 
-            // TODO: Dont let start or end coordinates go outside 10x10 grid (0, 0) - (9, 9)
             let newShip = Ship(length);
             newShip.startCoord = [x, y];
 
