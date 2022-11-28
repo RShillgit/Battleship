@@ -32,7 +32,7 @@ function gameboardGrids() {
 }
 
 function eventHandler(e) {
-    //console.log(e.target);
+
     // Ships Button
     if (e.target.innerHTML === 'Ships') return shipsScreen();
 
@@ -127,14 +127,14 @@ function shipSelect(coord, vessel) {
     }
     // Change color, class, and data attribute of boxes where ship is placed
     shipCoords.forEach(shipCoord => {
-        shipCoord.style.backgroundColor = 'gray';
+        shipCoord.style.backgroundColor = 'black';
         shipCoord.setAttribute('data-vessel', vessel);
         shipCoord.classList.toggle('placed');
     });
 
     // Change color and class of dragged ship and disable draggability
     const selectedVessel = document.getElementById(vessel);
-    selectedVessel.style.backgroundColor = 'green';
+    selectedVessel.style.backgroundColor = 'gray';
     selectedVessel.classList.toggle('deployed');
     selectedVessel.draggable = false;
 
@@ -161,7 +161,56 @@ function postConfirmPlacement() {
 
 }
 
+function renderAttacks(player) {
+
+    // AI Board Boxes
+    const aiBoardBoxes = document.getElementById('aisGameboard').querySelectorAll('.gameBoardBox');
+
+    const attackCoords = player.attacks;
+    const attackMisses = player.enemy.gameboard.misses;
+
+    const attackCoordStrings = [];
+    const attackMissStrings = [];
+
+    attackCoords.forEach(coord => attackCoordStrings.push(`${coord[0]}, ${coord[1]}`));
+    attackMisses.forEach(miss => attackMissStrings.push(`${miss[0]}, ${miss[1]}`));
+
+    let hits = attackCoordStrings.filter(x => !attackMissStrings.includes(x));
+
+    // Set boxes hit to red
+    hits.forEach(hit => {
+
+        // AI gameboard
+        if(player.player === 1) {
+            aiBoardBoxes.forEach(box => {
+                if (box.id === hit)box.style.backgroundColor = 'red';
+            })
+        }
+        // User gameboard
+        else if (player.player === 2) {
+            const boxHit = document.getElementById(hit);
+            boxHit.style.backgroundColor = 'red';
+        }
+    });
+
+    // Set boxes missed to gray
+    attackMissStrings.forEach(miss => {
+        // Ai gameboard
+        if (player.player === 1) {
+            aiBoardBoxes.forEach(box => {
+                if (box.id === miss) box.style.backgroundColor = 'gray';
+            })
+        }
+        // User gameboard
+        else if (player.player === 2) {
+            const allMisses = document.getElementById(miss);
+            allMisses.style.backgroundColor = 'gray';
+        }
+    });
+}
+
 export {
     gameboardGrids,
     eventHandler,
+    renderAttacks,
 }

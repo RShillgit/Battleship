@@ -24,26 +24,20 @@ function Player(id) {
 
         attack([x, y]) {
 
-            // User
-            if(this.player === 1) {
-                // If its the players turn, and the coordinates have not been attacked already
-                if (this.turn === true && this.attacks.includes([x, y]) === false) {
+            // If its the players turn, and the coordinates have not been attacked already
+            if (this.turn === true && this.attacks.includes([x, y]) === false) {
 
-                    // Attack the enemy
-                    this.enemy.gameboard.receiveAttack([x, y]);
+                // Attack the enemy
+                this.enemy.gameboard.receiveAttack([x, y]);
 
-                    // Push coordinates to player's attacks array
-                    this.attacks.push([x, y]);
+                // Push coordinates to player's attacks array
+                this.attacks.push([x, y]);
 
-                    // Switch turns to false
-                    this.switchTurn();
-                }
-                return
+                // Switch turns to false
+                this.switchTurn();
+                this.enemy.switchTurn();
             }
-
         }
-
-
     }
 }
 module.exports = Player;

@@ -1,9 +1,7 @@
-import _, { set } from 'lodash';
 import './style.css';
 import Ship from './ship';
-import Gameboard from './gameboard';
 import Player from './player';
-import { gameboardGrids, eventHandler } from './dom';
+import { gameboardGrids, eventHandler, renderAttacks } from './dom';
 
 // Create main game loop
 function game() {
@@ -31,12 +29,21 @@ function game() {
     // Confirm ship placement button event listener
     const confirmPlacementBtn = document.getElementById('confirmPlacement');
     confirmPlacementBtn.addEventListener('click', (e) => {
+
         eventHandler(e);
         placeShips(user);
     })
 
     // Randomly place ai's ships
     placeAiShips(ai);
+
+    // Add event listener to AI board
+    const aisBoard = document.getElementById('aisGameboard');
+    aisBoard.addEventListener('click', (e) => {
+
+        eventHandler(e);
+        if (attack(user, e) === 'Game Over') return; // Make A winner message
+    });
 
 }
 game();
@@ -72,14 +79,27 @@ function placeShips(user) {
     const convertedDestroyerCoord = placedDestroyer.id.split(',')
     const destroyerStartCoord = [Number(convertedDestroyerCoord[0]), Number(convertedDestroyerCoord[1])];
 
+    // DIRECTION FOR EACH SHIP CAN BE CHANGED LATER WHEN CLICKING A ROTATE BUTTON
     // Place the ships
-    user.gameboard.placeShip(5, carrierStartCoord);
-    user.gameboard.placeShip(4, battleshipStartCoord);
-    user.gameboard.placeShip(3, cruiserStartCoord);
-    user.gameboard.placeShip(3, submarineStartCoord);
-    user.gameboard.placeShip(2, destroyerStartCoord);
+    // Carrier
+    const userCarrier = Ship(5);
+    user.gameboard.placeShip(userCarrier, carrierStartCoord);
 
-    console.log(user);
+    // Battleship
+    const userBattleship = Ship(4);
+    user.gameboard.placeShip(userBattleship, battleshipStartCoord);
+
+    // Cruiser
+    const userCruiser = Ship(3);
+    user.gameboard.placeShip(userCruiser, cruiserStartCoord);
+
+    // Submarine
+    const userSubmarine = Ship(3);
+    user.gameboard.placeShip(userSubmarine, submarineStartCoord);
+
+    // Destroyer
+    const userDestroyer = Ship(2);
+    user.gameboard.placeShip(userDestroyer, destroyerStartCoord);
 }
 
 function randomShipCoord(vessel) {
@@ -200,11 +220,72 @@ function placeAiShips(ai) {
     }
 
     // Actually create the ships
-    ai.gameboard.placeShip(5, carrier.randomCoordinate);
-    ai.gameboard.placeShip(4, battleship.randomCoordinate);
-    ai.gameboard.placeShip(3, cruiser.randomCoordinate);
-    ai.gameboard.placeShip(3, submarine.randomCoordinate);
-    ai.gameboard.placeShip(2, destroyer.randomCoordinate);
-    
-    console.log(ai.gameboard);
+    // Carrier
+    const aiCarrier = Ship(5);
+    aiCarrier.direction = carrier.direction;
+    ai.gameboard.placeShip(aiCarrier, carrier.randomCoordinate);
+
+    // Battleship
+    const aiBattleship = Ship(4);
+    aiBattleship.direction = battleship.direction;
+    ai.gameboard.placeShip(aiBattleship, battleship.randomCoordinate);
+
+    // Cruiser
+    const aiCruiser = Ship(3);
+    aiCruiser.direction = cruiser.direction;
+    ai.gameboard.placeShip(aiCruiser, cruiser.randomCoordinate);
+
+    // Submarine
+    const aiSubmarine = Ship(3);
+    aiSubmarine.direction = submarine.direction;
+    ai.gameboard.placeShip(aiSubmarine, submarine.randomCoordinate);
+
+    // Destroyer
+    const aiDestroyer = Ship(2);
+    aiDestroyer.direction = destroyer.direction;
+    ai.gameboard.placeShip(aiDestroyer, destroyer.randomCoordinate);
+}
+
+function attack(user, e) {
+    if (user.gameboard.allSunk() || user.enemy.gameboard.allSunk()) return 'Game Over';
+    attackAi(user, e);
+    aiAttackUser(user);
+}
+
+function attackAi(user, e) {
+
+    if (user.turn === true) {
+  
+        const splitId = e.target.id.split(',');
+        const xAttack = Number(splitId[0]);
+        const yAttack = Number(splitId[1]);
+
+        user.attack([xAttack, yAttack]);
+
+        // DOM
+        renderAttacks(user);
+        
+        attack(user, e)
+    }
+}
+
+function aiAttackUser(user) {
+    const ai = user.enemy;
+
+    if (ai.turn === true) {
+        // Get a random user board box to attack and incriment counter
+        const userBoxes = document.getElementById('usersGameboard').querySelectorAll('.gameBoardBox');
+
+        const randomBox = userBoxes[Math.floor(Math.random()*userBoxes.length)];
+
+        const randomBoxSplit = randomBox.id.split(',');
+        const randomUserX = Number(randomBoxSplit[0]);
+        const randomUserY = Number(randomBoxSplit[1]);
+
+        ai.attack([randomUserX, randomUserY]);
+
+        // DOM
+        //randomBox.style.backgroundColor = 'orange';
+        renderAttacks(ai);
+    }
 }
