@@ -50,12 +50,28 @@
     justify-content: center;
     align-items: center;
 }
-.vessel {
+.vesselContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.vesselContainer.rotated {
+    display: flex;
+    flex-direction: row;
+}
+
+.vessel, .vessel.rotated {
     display: flex;
     justify-content: center;
     margin: 20px;
     width: min-content;
 }
+.vessel.vertical {
+    flex-direction: column;
+}
+
 .vessel:hover {
     cursor: pointer;
     background-color: lightgray;
@@ -88,4 +104,35 @@
 
 .footer {
     height: 10vh;
+}
+
+.winnerScreen {
+    background-color: rgba(0, 0, 0, 0.7);
+    position: absolute;
+    height: 70vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 5;
+}
+.winnerScreen p {
+    font-size: xx-large;
+    color: white;
+}
+.winnerScreen button {
+    color: white;
+    background-color: transparent;
+    height: 3rem;
+    width: 8rem;
+    font-size: larger;
+    border-radius: 2rem;
+    border: 3px solid white;
+}
+.winnerScreen button:hover {
+    cursor: pointer;
+}
+.winnerScreen button:active {
+    border: 3px solid black;
 }

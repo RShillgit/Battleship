@@ -8,6 +8,7 @@ function Player(id) {
         gameboard: null,
         enemy: null,
         attacks: [],
+        winner: null,
 
         // Creates the player's gameboard
         createBoard() {

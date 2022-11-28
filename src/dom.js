@@ -34,18 +34,33 @@ function gameboardGrids() {
 function eventHandler(e) {
 
     // Ships Button
-    if (e.target.innerHTML === 'Ships') return shipsScreen();
+    if (e.target.innerHTML === 'Ships') return shipsScreen(e);
+
+    // Rotate Button
+    if (e.target.id === 'rotateBtn') return shipsScreen(e);
 
     // Confirm Placement
     if (e.currentTarget.id === 'confirmPlacement') return postConfirmPlacement();
 }
 
-function shipsScreen() {
-    
+function shipsScreen(e) {
+
+    // If the rotate button was clicked
+    if(e.target.id === 'rotateBtn') {
+
+        // Rotate content div
+        const shipContent = document.querySelector('.vesselContainer');
+        shipContent.classList.toggle('rotated');
+
+        // Rotate ships
+        const vesselDivs = document.querySelectorAll('.vessel');
+        vesselDivs.forEach(vesselDiv => vesselDiv.classList.toggle('vertical'));
+    }
+
     // Toggle shipsContainer's display
     const shipsContainer = document.querySelector('.shipsContainer');
     shipsContainer.classList.toggle('Active');
-    
+
     // Initialize coordinate where ship is placed
     let placementCoord;
 
@@ -84,7 +99,7 @@ function shipsScreen() {
         vessel.addEventListener('dragend', () => {
             placementCoord = coords.pop();
 
-            // send vessel and coordinates to ship select function
+            // send vessel, and coordinates to ship select function
             shipSelect(placementCoord, draggedVessel);
         })
     });
@@ -92,6 +107,9 @@ function shipsScreen() {
 }
 
 function shipSelect(coord, vessel) {
+
+    // Get the dragged vessel to see if it is horizontal or vertical
+    const vesselDragged = document.getElementById(vessel)
 
     // Vessel names and lengths
     const vesselStats = {
@@ -115,7 +133,11 @@ function shipSelect(coord, vessel) {
     // Place the ship
     for (let i = 0; i < vesselLength; i++) {
 
-        const shipBoxes = document.getElementById(`${xCoord + i}, ${yCoord}`);
+        let shipBoxes;
+
+        if (vesselDragged.classList.value.includes('vertical')) shipBoxes = document.getElementById(`${xCoord}, ${yCoord - i}`);
+        if (!vesselDragged.classList.value.includes('vertical')) shipBoxes = document.getElementById(`${xCoord + i}, ${yCoord}`);
+       
 
         // Error handling if the ship coordinate overlaps an already placed ship
         if (shipBoxes.classList.contains('placed')) return;
@@ -130,6 +152,10 @@ function shipSelect(coord, vessel) {
         shipCoord.style.backgroundColor = 'black';
         shipCoord.setAttribute('data-vessel', vessel);
         shipCoord.classList.toggle('placed');
+
+        // Add the direction to the box class
+        if(vesselDragged.classList.value.includes('vertical')) shipCoord.classList.toggle('vertical');
+        else shipCoord.classList.toggle('horizontal');
     });
 
     // Change color and class of dragged ship and disable draggability
@@ -209,8 +235,33 @@ function renderAttacks(player) {
     });
 }
 
+function displayWinner(playerId) {
+
+    // Container
+    const gameContainer = document.querySelector('.gameboardsContainer');
+
+    // Winner Message Div
+    const winnerMessageDiv = document.createElement('div');
+    winnerMessageDiv.classList = 'winnerScreen';
+
+    // Winner Message
+    const winnerPlayer = document.createElement('p');
+    if (playerId === 1) winnerPlayer.innerHTML = 'You Won!';
+    else winnerPlayer.innerHTML = 'You Lost!';
+    
+    // Play Again Button
+    const playAgainBtn = document.createElement('button');
+    playAgainBtn.setAttribute('id', 'playAgain');
+    playAgainBtn.innerHTML = 'Play Again';
+
+    winnerMessageDiv.appendChild(winnerPlayer);
+    winnerMessageDiv.appendChild(playAgainBtn);
+    gameContainer.appendChild(winnerMessageDiv);
+}
+
 export {
     gameboardGrids,
     eventHandler,
     renderAttacks,
+    displayWinner,
 }

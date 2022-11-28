@@ -1,7 +1,9 @@
 import './style.css';
 import Ship from './ship';
 import Player from './player';
-import { gameboardGrids, eventHandler, renderAttacks } from './dom';
+import { gameboardGrids, eventHandler, renderAttacks, displayWinner} from './dom';
+
+// TODO: More intelligent AI
 
 // Create main game loop
 function game() {
@@ -9,6 +11,12 @@ function game() {
     // Ships button event listener
     const shipsButton = document.getElementById('shipsBtn');
     shipsButton.addEventListener('click', (e) => eventHandler(e));
+
+    // Rotate ships event listener
+    const rotateShips = document.getElementById('rotateBtn');
+    rotateShips.addEventListener('click', (e) => {
+        eventHandler(e)
+    });
 
     // Make User and Ai boards
     gameboardGrids();
@@ -42,7 +50,8 @@ function game() {
     aisBoard.addEventListener('click', (e) => {
 
         eventHandler(e);
-        if (attack(user, e) === 'Game Over') return; // Make A winner message
+
+        attack(user, e);
     });
 
 }
@@ -79,26 +88,25 @@ function placeShips(user) {
     const convertedDestroyerCoord = placedDestroyer.id.split(',')
     const destroyerStartCoord = [Number(convertedDestroyerCoord[0]), Number(convertedDestroyerCoord[1])];
 
-    // DIRECTION FOR EACH SHIP CAN BE CHANGED LATER WHEN CLICKING A ROTATE BUTTON
-    // Place the ships
-    // Carrier
-    const userCarrier = Ship(5);
+    // Create the ships
+    const userCarrier = Ship(5); // Carrier
+    const userBattleship = Ship(4); // Battleship
+    const userCruiser = Ship(3); // Cruiser
+    const userSubmarine = Ship(3); // Submarine
+    const userDestroyer = Ship(2); // Destroyer
+
+    // Rotate ships if needed
+    if (placedCarrier.classList.value.includes('vertical')) userCarrier.rotate();
+    if (placedBattleship.classList.value.includes('vertical')) userBattleship.rotate();
+    if (placedCruiser.classList.value.includes('vertical')) userCruiser.rotate();
+    if (placedSubmarine.classList.value.includes('vertical')) userSubmarine.rotate();
+    if (placedDestroyer.classList.value.includes('vertical')) userDestroyer.rotate();
+
+    // Place Ships
     user.gameboard.placeShip(userCarrier, carrierStartCoord);
-
-    // Battleship
-    const userBattleship = Ship(4);
     user.gameboard.placeShip(userBattleship, battleshipStartCoord);
-
-    // Cruiser
-    const userCruiser = Ship(3);
     user.gameboard.placeShip(userCruiser, cruiserStartCoord);
-
-    // Submarine
-    const userSubmarine = Ship(3);
     user.gameboard.placeShip(userSubmarine, submarineStartCoord);
-
-    // Destroyer
-    const userDestroyer = Ship(2);
     user.gameboard.placeShip(userDestroyer, destroyerStartCoord);
 }
 
@@ -247,45 +255,70 @@ function placeAiShips(ai) {
 }
 
 function attack(user, e) {
-    if (user.gameboard.allSunk() || user.enemy.gameboard.allSunk()) return 'Game Over';
-    attackAi(user, e);
-    aiAttackUser(user);
+    if (user.gameboard.allSunk()) return displayWinner(2), replay();
+    if (user.enemy.gameboard.allSunk()) return displayWinner(1), replay();
+    else if (user.turn === true) attackAi(user, e);
+    else if (user.turn === false) aiAttackUser(user);
 }
 
 function attackAi(user, e) {
 
-    if (user.turn === true) {
-  
-        const splitId = e.target.id.split(',');
-        const xAttack = Number(splitId[0]);
-        const yAttack = Number(splitId[1]);
+    // Get each attack and save them to an array as strings
+    let userAttacksArray = [];
+    const userAttacks = user.attacks;
+    userAttacks.forEach(att => userAttacksArray.push(`${att[0]}, ${att[1]}`));
 
-        user.attack([xAttack, yAttack]);
+    // If box has already been attacked return
+    if (userAttacksArray.includes(e.target.id)) return;
 
-        // DOM
-        renderAttacks(user);
-        
-        attack(user, e)
-    }
+    const splitId = e.target.id.split(',');
+    const xAttack = Number(splitId[0]);
+    const yAttack = Number(splitId[1]);
+
+    user.attack([xAttack, yAttack]);
+
+    // DOM
+    renderAttacks(user);
+    
+    attack(user, e);
 }
 
 function aiAttackUser(user) {
     const ai = user.enemy;
 
-    if (ai.turn === true) {
-        // Get a random user board box to attack and incriment counter
-        const userBoxes = document.getElementById('usersGameboard').querySelectorAll('.gameBoardBox');
+    // Get each ai attack and save them to an array as strings
+    let aiAttacksArray = [];
+    const aiAttacks = ai.attacks;
+    aiAttacks.forEach(att => aiAttacksArray.push(`${att[0]}, ${att[1]}`));
 
-        const randomBox = userBoxes[Math.floor(Math.random()*userBoxes.length)];
+    // Get a random user board box to attack
+    const userBoxes = document.getElementById('usersGameboard').querySelectorAll('.gameBoardBox');
 
-        const randomBoxSplit = randomBox.id.split(',');
-        const randomUserX = Number(randomBoxSplit[0]);
-        const randomUserY = Number(randomBoxSplit[1]);
+    let randomBox = userBoxes[Math.floor(Math.random()*userBoxes.length)];
 
-        ai.attack([randomUserX, randomUserY]);
-
-        // DOM
-        //randomBox.style.backgroundColor = 'orange';
-        renderAttacks(ai);
+    // If the random box has already been attacked, find another random box
+    while (aiAttacksArray.includes(randomBox.id)) {
+        randomBox = userBoxes[Math.floor(Math.random()*userBoxes.length)];
     }
+
+    const randomBoxSplit = randomBox.id.split(',');
+    const randomUserX = Number(randomBoxSplit[0]);
+    const randomUserY = Number(randomBoxSplit[1]);
+
+    ai.attack([randomUserX, randomUserY]);
+
+    // DOM
+    renderAttacks(ai);
 }
+
+function replay() {
+
+    // Play Again button event listener
+    const replayBtn = document.getElementById('playAgain');
+    replayBtn.addEventListener('click', () => {
+
+        // reload page
+        window.location.reload();
+    });
+}
+

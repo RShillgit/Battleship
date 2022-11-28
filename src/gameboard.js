@@ -36,8 +36,6 @@ function Gameboard(player) {
                         
                         // Check if ship is sunk
                         this.ships[i].isSunk();
-                        
-                        // TODO: If ship is sunk check if all the ships are sunk?                
                     }
                 }
 
@@ -52,8 +50,6 @@ function Gameboard(player) {
 
                         // Check if ship is sunk
                         this.ships[i].isSunk();
-
-                        // TODO: If ship is sunk check if all the ships are sunk?
                     }
                 }
             };
