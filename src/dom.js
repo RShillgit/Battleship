@@ -39,11 +39,16 @@ function eventHandler(e) {
     // Rotate Button
     if (e.target.id === 'rotateBtn') return shipsScreen(e);
 
+    // Clear Placement
+    if (e.currentTarget.id === 'clearPlacement') return clearShips();
+
     // Confirm Placement
     if (e.currentTarget.id === 'confirmPlacement') return postConfirmPlacement();
 }
 
 function shipsScreen(e) {
+
+    const shipsContainer = document.querySelector('.shipsContainer');
 
     // If the rotate button was clicked
     if(e.target.id === 'rotateBtn') {
@@ -55,10 +60,12 @@ function shipsScreen(e) {
         // Rotate ships
         const vesselDivs = document.querySelectorAll('.vessel');
         vesselDivs.forEach(vesselDiv => vesselDiv.classList.toggle('vertical'));
+
+        // Toggle shipsContainer's display
+        shipsContainer.classList.toggle('Active');
     }
 
     // Toggle shipsContainer's display
-    const shipsContainer = document.querySelector('.shipsContainer');
     shipsContainer.classList.toggle('Active');
 
     // Initialize coordinate where ship is placed
@@ -149,7 +156,6 @@ function shipSelect(coord, vessel) {
     }
     // Change color, class, and data attribute of boxes where ship is placed
     shipCoords.forEach(shipCoord => {
-        shipCoord.style.backgroundColor = 'black';
         shipCoord.setAttribute('data-vessel', vessel);
         shipCoord.classList.toggle('placed');
 
@@ -160,7 +166,6 @@ function shipSelect(coord, vessel) {
 
     // Change color and class of dragged ship and disable draggability
     const selectedVessel = document.getElementById(vessel);
-    selectedVessel.style.backgroundColor = 'gray';
     selectedVessel.classList.toggle('deployed');
     selectedVessel.draggable = false;
 
@@ -173,9 +178,14 @@ function allShipsPlaced() {
     const deployedVessels = document.querySelectorAll('.vessel.deployed');
 
     if (deployedVessels.length === 5) {
-        // Get confirm button
+
+        // Display confirm button
         const confirmPlacement = document.getElementById('confirmPlacement');
         confirmPlacement.style.display = 'flex';
+
+        // Display clear button
+        const clearPlacement = document.getElementById('clearPlacement');
+        clearPlacement.style.display = 'flex';
     }
 }
 
@@ -184,7 +194,6 @@ function postConfirmPlacement() {
     // Close the ships container
     const activeShipsContainer = document.querySelector('.shipsContainer');
     activeShipsContainer.classList.toggle('Active');
-
 }
 
 function renderAttacks(player) {
@@ -192,15 +201,18 @@ function renderAttacks(player) {
     // AI Board Boxes
     const aiBoardBoxes = document.getElementById('aisGameboard').querySelectorAll('.gameBoardBox');
 
+    // Attack and misses arrays
     const attackCoords = player.attacks;
     const attackMisses = player.enemy.gameboard.misses;
 
     const attackCoordStrings = [];
     const attackMissStrings = [];
 
+    // Attack and misses arrays as string coordinates
     attackCoords.forEach(coord => attackCoordStrings.push(`${coord[0]}, ${coord[1]}`));
     attackMisses.forEach(miss => attackMissStrings.push(`${miss[0]}, ${miss[1]}`));
 
+    // Hits
     let hits = attackCoordStrings.filter(x => !attackMissStrings.includes(x));
 
     // Set boxes hit to red
@@ -257,6 +269,29 @@ function displayWinner(playerId) {
     winnerMessageDiv.appendChild(winnerPlayer);
     winnerMessageDiv.appendChild(playAgainBtn);
     gameContainer.appendChild(winnerMessageDiv);
+}
+
+function clearShips() {
+
+    const vesselData = document.querySelectorAll('[data-vessel]');
+    vesselData.forEach(vData => vData.removeAttribute('data-vessel'));
+
+    // Removed placed class from all placed ships
+    const placedShips = document.querySelectorAll('.gameBoardBox.placed');
+
+    placedShips.forEach(placedShip => {
+        placedShip.classList = 'gameBoardBox';
+
+    })
+
+    // Remove deployed class from all vessels
+    const allDeployedVessels = document.querySelectorAll('.vessel.deployed');
+    allDeployedVessels.forEach(deployedVessel => {
+        deployedVessel.classList.toggle('deployed');
+    })
+
+    const allVessels = document.querySelectorAll('.vessel');
+    allVessels.forEach(v => v.draggable = true);
 }
 
 export {

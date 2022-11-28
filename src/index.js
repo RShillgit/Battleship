@@ -3,7 +3,7 @@ import Ship from './ship';
 import Player from './player';
 import { gameboardGrids, eventHandler, renderAttacks, displayWinner} from './dom';
 
-// TODO: More intelligent AI
+// Clicking on ai board before selecting ships makes you lose instantly
 
 // Create main game loop
 function game() {
@@ -34,26 +34,29 @@ function game() {
     user.createEnemy(ai);
     ai.createEnemy(user);
 
+    // Clear ship placement button event listener
+    const clearPlacement = document.getElementById('clearPlacement');
+    clearPlacement.addEventListener('click', (e) => eventHandler(e));
+
     // Confirm ship placement button event listener
     const confirmPlacementBtn = document.getElementById('confirmPlacement');
     confirmPlacementBtn.addEventListener('click', (e) => {
 
         eventHandler(e);
         placeShips(user);
+
+        // Add event listener to AI board
+        const aisBoard = document.getElementById('aisGameboard');
+        aisBoard.addEventListener('click', (e) => {
+
+            eventHandler(e);
+
+            attack(user, e);
+        });
     })
 
     // Randomly place ai's ships
     placeAiShips(ai);
-
-    // Add event listener to AI board
-    const aisBoard = document.getElementById('aisGameboard');
-    aisBoard.addEventListener('click', (e) => {
-
-        eventHandler(e);
-
-        attack(user, e);
-    });
-
 }
 game();
 
@@ -255,8 +258,8 @@ function placeAiShips(ai) {
 }
 
 function attack(user, e) {
-    if (user.gameboard.allSunk()) return displayWinner(2), replay();
-    if (user.enemy.gameboard.allSunk()) return displayWinner(1), replay();
+    if (user.gameboard.ships.length === 5 && user.gameboard.allSunk()) return displayWinner(2), replay();
+    if (user.enemy.gameboard.ships.length === 5 && user.enemy.gameboard.allSunk()) return displayWinner(1), replay();
     else if (user.turn === true) attackAi(user, e);
     else if (user.turn === false) aiAttackUser(user);
 }
@@ -286,6 +289,36 @@ function attackAi(user, e) {
 function aiAttackUser(user) {
     const ai = user.enemy;
 
+    // Get ai attacks and misses
+    const allAiAttacks = ai.attacks;
+    const allAiMisses = user.gameboard.misses;
+
+    const aiAttackCoords = [];
+    const aiMissCoords = [];
+
+    // Attack and misses arrays as string coordinates
+    allAiAttacks.forEach(att => aiAttackCoords.push(`${att[0]}, ${att[1]}`));
+    allAiMisses.forEach(miss => aiMissCoords.push(`${miss[0]}, ${miss[1]}`));
+
+    // Hits
+    let hits = aiAttackCoords.filter(x => !aiMissCoords.includes(x));
+
+    // The box that the ai will attack
+    let randomBox;
+
+    /*
+    // If there is a hit, attack randomly either left right above or below the hit
+    if (hits.length > 0) {
+        const mostRecentHit = hits.pop();
+
+        // Intelligently attack the next box
+        randomBox = intelligentAi(hits, hit);
+
+    }
+    */
+
+    // if (hits.length < 1 || the ship is sunk) ...
+
     // Get each ai attack and save them to an array as strings
     let aiAttacksArray = [];
     const aiAttacks = ai.attacks;
@@ -294,12 +327,14 @@ function aiAttackUser(user) {
     // Get a random user board box to attack
     const userBoxes = document.getElementById('usersGameboard').querySelectorAll('.gameBoardBox');
 
-    let randomBox = userBoxes[Math.floor(Math.random()*userBoxes.length)];
+    randomBox = userBoxes[Math.floor(Math.random()*userBoxes.length)];
 
     // If the random box has already been attacked, find another random box
     while (aiAttacksArray.includes(randomBox.id)) {
         randomBox = userBoxes[Math.floor(Math.random()*userBoxes.length)];
     }
+
+    // End if
 
     const randomBoxSplit = randomBox.id.split(',');
     const randomUserX = Number(randomBoxSplit[0]);
@@ -309,6 +344,10 @@ function aiAttackUser(user) {
 
     // DOM
     renderAttacks(ai);
+}
+
+function intelligentAi(hits, hit) {
+
 }
 
 function replay() {
