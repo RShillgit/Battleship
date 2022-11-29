@@ -1,13 +1,10 @@
 import './style.css';
 import Ship from './ship';
 import Player from './player';
-import { footer, gameboardGrids, eventHandler, renderAttacks, displayWinner} from './dom';
+import { gameboardGrids, eventHandler, renderAttacks, displayWinner} from './dom';
 
 // Create main game loop
 function game() {
-
-    // render footer
-    footer();
     
     // Ships button event listener
     const shipsButton = document.getElementById('shipsBtn');
