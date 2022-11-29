@@ -1,3 +1,12 @@
+import githubMark from './images/github-mark.png';
+
+function footer() {
+    // Get footer anchor 
+    const footerGitHub = document.getElementById('github');
+    const githubImg = document.createElement('img');
+    githubImg.src = githubMark;
+    footerGitHub.appendChild(githubImg);
+}
 function gameboardGrids() {
     const gameBoardDiv = document.querySelectorAll('.gameBoard');
 
@@ -295,6 +304,7 @@ function clearShips() {
 }
 
 export {
+    footer,
     gameboardGrids,
     eventHandler,
     renderAttacks,
