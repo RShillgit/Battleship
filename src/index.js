@@ -3,8 +3,6 @@ import Ship from './ship';
 import Player from './player';
 import { gameboardGrids, eventHandler, renderAttacks, displayWinner} from './dom';
 
-// Clicking on ai board before selecting ships makes you lose instantly
-
 // Create main game loop
 function game() {
 
@@ -207,17 +205,6 @@ function placeAiShips(ai) {
                 //occupiedCoords.push(newCoord);
             }
             occupiedCoords.push(newCoord);
-        }
-
-        // THIS CAN BE DELETED LATER
-        for (let j = 0; j < occupiedCoords.length; j++) {
-            // AI Board Boxes
-            const aiBoardBoxes = document.getElementById('aisGameboard').querySelectorAll('.gameBoardBox');
-            aiBoardBoxes.forEach(box => {
-                if (box.id === occupiedCoords[j]){
-                    box.style.backgroundColor = 'blue';
-                }
-            })
         }
     })
     // If the coordinate is already occupied, rerun the function to get new coordinates

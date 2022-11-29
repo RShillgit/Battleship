@@ -221,28 +221,28 @@ function renderAttacks(player) {
         // AI gameboard
         if(player.player === 1) {
             aiBoardBoxes.forEach(box => {
-                if (box.id === hit)box.style.backgroundColor = 'red';
+                if (box.id === hit)box.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
             })
         }
         // User gameboard
         else if (player.player === 2) {
             const boxHit = document.getElementById(hit);
-            boxHit.style.backgroundColor = 'red';
+            boxHit.style.backgroundColor = 'rgba(255, 0, 0, 0.5)';
         }
     });
 
-    // Set boxes missed to gray
+    // Set boxes missed color
     attackMissStrings.forEach(miss => {
         // Ai gameboard
         if (player.player === 1) {
             aiBoardBoxes.forEach(box => {
-                if (box.id === miss) box.style.backgroundColor = 'gray';
+                if (box.id === miss) box.style.backgroundColor = 'rgba(220, 220, 220, 0.5)';
             })
         }
         // User gameboard
         else if (player.player === 2) {
             const allMisses = document.getElementById(miss);
-            allMisses.style.backgroundColor = 'gray';
+            allMisses.style.backgroundColor = 'rgba(220, 220, 220, 0.5)';
         }
     });
 }
