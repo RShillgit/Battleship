@@ -186,6 +186,12 @@ button:active {
     height: 10vh;
     transition: all 1s ease-in-out;
 }
+#github {
+    width: 32px;
+    height: 32px;
+    background-image: url('./images/github-mark.png');
+}
+
 #github:hover {
     animation: rotate 0.4s linear;
 }
